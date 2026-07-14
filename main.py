@@ -81,16 +81,7 @@ async def rag_query_pdf_ai(ctx: inngest.Context):
         f"Question: {question}\n"
         "Answer concisely using the context above."
     )
-
-    # response = client.chat.completions.create(
-    #     model="deepseek-v4-flash",
-    #     messages=[
-    #         {"role": "user", "content": "Hello!"}
-    #     ]
-    # )
-
-    # print(response.choices[0].message.content)
-
+    
     res = await ctx.step.ai.infer(
         "LLM-Answer",
         adapter=adapter,
@@ -104,8 +95,6 @@ async def rag_query_pdf_ai(ctx: inngest.Context):
             ]
         }
     )
-
-    print(f"res: {res}")
 
     answer = res["choices"][0]["message"]["content"].strip()
     return {"answer": answer, "sources": found.sources, "num_contexts": len(found.contexts)}
