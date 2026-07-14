@@ -1,3 +1,4 @@
+from itertools import count
 import logging
 from fastapi import FastAPI
 import inngest
@@ -35,7 +36,18 @@ inngest_client = inngest.Inngest(
 
 @inngest_client.create_function(
     fn_id="RAG: Ingest PDF",
-    trigger=inngest.TriggerEvent(event="rag/ingest_pdf")
+    trigger=inngest.TriggerEvent(event="rag/ingest_pdf"),
+    throttle=inngest.Throttle(
+    limit=1,
+    period=datetime.timedelta(minutes=1),
+    key="event.data.source_id",
+    burst=2,
+    ),
+    rate_limit=inngest.RateLimit(
+    limit=1,
+    period=datetime.timedelta(hours=4),
+    key="event.data.source_id",
+    )
 )
 async def rag_ingest_pdf(ctx: inngest.Context):
     def _load(ctx: inngest.Context) -> RAGChunkAndSrc:
