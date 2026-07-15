@@ -1,5 +1,39 @@
 # RAG_Production_App
 
+## Inngest Server
+
+<img src="RAG_APP/1.png" alt="App Screenshot" width="500" />
+
+
+## Inngest Data
+
+#### 1. Invoke the ingest function
+
+<img src="RAG_APP/2.png" alt="App Screenshot" width="500" />
+
+
+#### 2. Run observability
+
+<img src="RAG_APP/3.png" alt="App Screenshot" width="500" />
+
+
+## Query The Vector Database
+
+#### 1. Invoke the query function
+
+<img src="RAG_APP/4.png" alt="App Screenshot" width="500" />
+
+
+#### 2. Run observability
+
+<img src="RAG_APP/5.png" alt="App Screenshot" width="500" />
+
+
+## Streamlit FrontEnd
+
+<img src="RAG_APP/6.png" alt="App Screenshot" width="500" />
+
+
 # Prerequisities
 
 ### Install UV
