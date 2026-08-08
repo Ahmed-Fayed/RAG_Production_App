@@ -72,7 +72,7 @@ async def rag_ingest_pdf(ctx: inngest.Context):
 
 
 @inngest_client.create_function(
-    fn_id="RAG: Ingest DataBase",
+    fn_id="RAG: Ingest Dataset",
     trigger=inngest.TriggerEvent(event="rag/ingest_db"),
     throttle=inngest.Throttle(
         limit=1,
@@ -181,4 +181,4 @@ async def rag_query_pdf_ai(ctx: inngest.Context):
 
 app = FastAPI()
 
-inngest.fast_api.serve(app, inngest_client, [rag_ingest_pdf, rag_query_pdf_ai])
+inngest.fast_api.serve(app, inngest_client, [rag_ingest_pdf, rag_ingest_db, rag_query_pdf_ai])

@@ -27,7 +27,7 @@ def save_uploaded_pdf(file) -> Path:
     return file_path
 
 
-async def send_rag_ingest_event(pdf_path: Path) -> None:
+async def send_file_ingest_event(pdf_path: Path) -> None:
     client = get_inngest_client()
     await client.send(
         inngest.Event(
@@ -39,6 +39,15 @@ async def send_rag_ingest_event(pdf_path: Path) -> None:
         )
     )
 
+async def send_path_ingest_event(dataset_path: Path):
+    client = get_inngest_client()
+    await client.send(
+        inngest.Event(
+            name="rag/ingest_db",
+            data={"db_path": str(dataset_path.resolve())}
+        )
+    )
+
 
 st.title("Upload a PDF to Ingest")
 uploaded = st.file_uploader("Choose a PDF", type=["pdf"], accept_multiple_files=False)
@@ -47,17 +56,30 @@ if uploaded is not None:
     with st.spinner("Uploading and triggering ingestion..."):
         path = save_uploaded_pdf(uploaded)
         # Kick off the event and block until the send completes
-        asyncio.run(send_rag_ingest_event(path))
+        asyncio.run(send_file_ingest_event(path))
         # Small pause for user feedback continuity
         time.sleep(0.3)
     st.success(f"Triggered ingestion for: {path.name}")
     st.caption("You can upload another PDF if you like.")
 
+
+st.divider()
+st.title("Enter a path for a dataset to Ingest")
+dataset_path = st.text_input("Path to a dataset (PDF files only)", value="", placeholder="Enter a path to a dataset")
+
+
+
+if dataset_path is not None and dataset_path != "":
+    with st.spinner(f"Triggering ingestion for dataset at: {dataset_path}..."):
+        asyncio.run(send_path_ingest_event(Path(dataset_path)))
+        time.sleep(0.3)
+    st.success(f"Triggered ingestion for dataset at: {dataset_path}")
+
 st.divider()
 st.title("Ask a question about your PDFs")
 
 
-async def send_rag_query_event(question: str, topk: int) -> None:
+async def send_rag_query_event(question: str, topk: int, search_type: str) -> None:
     client = get_inngest_client()
     result = await client.send(
         inngest.Event(
@@ -65,6 +87,7 @@ async def send_rag_query_event(question: str, topk: int) -> None:
             data={
                 "question": question,
                 "topk": topk,
+                "search_type": search_type
             },
         )
     )
@@ -106,12 +129,13 @@ def wait_for_run_output(event_id: str, timeout_s: float = 120.0, poll_interval_s
 with st.form("rag_query_form"):
     question = st.text_input("Your question")
     topk = st.number_input("How many chunks to retrieve", min_value=1, max_value=20, value=5, step=1)
+    search_type = st.selectbox("Search type", options=["hybrid", "dense", "sparse"], index=0)
     submitted = st.form_submit_button("Ask")
 
     if submitted and question.strip():
         with st.spinner("Sending event and generating answer..."):
             # Fire-and-forget event to Inngest for observability/workflow
-            event_id = asyncio.run(send_rag_query_event(question.strip(), int(topk)))
+            event_id = asyncio.run(send_rag_query_event(question.strip(), int(topk), search_type))
             # Poll the local Inngest API for the run's output
             output = wait_for_run_output(event_id)
             print(output)

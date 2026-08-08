@@ -31,7 +31,7 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
     # embeddings = list(embedding_model.embed(texts))
     embeddings = [
         {
-        "dense": list(embedding_model.embed(text)),
+        "dense": list(embedding_model.embed([text]))[0].tolist(),
         "sparse": models.Document(text=text, model="Qdrant/bm25")
         }
         for text in texts

@@ -50,9 +50,9 @@ class QdrantStorage:
     def dense_search(self, query_vector, topk=10):
         results = self.client.query_points(
             collection_name=self.collection,
-            query=query_vector,
+            query=query_vector["dense"],
             using="dense",
-            with_patload=True,
+            with_payload=True,
             limit=topk
         )
         
@@ -73,7 +73,7 @@ class QdrantStorage:
     def sparse_search(self, query_vector, topk=10):
         results = self.client.query_points(
             collection_name=self.collection,
-            query=query_vector,
+            query=query_vector["sparse"],
             using="sparse",
             with_payload=True,
             limit=topk
@@ -99,12 +99,12 @@ class QdrantStorage:
             collection_name=self.collection,
             prefetch=[
                 models.Prefetch(
-                    query=query_vector,
+                    query=query_vector["dense"],
                     using="dense",
                     limit=topk
                 ),
                 models.Prefetch(
-                    query=query_vector,
+                    query=query_vector["sparse"],
                     using="sparse",
                     limit=topk
                 )
