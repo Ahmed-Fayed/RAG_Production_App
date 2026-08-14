@@ -3,6 +3,7 @@ from llama_index.core.node_parser import SentenceSplitter
 from dotenv import load_dotenv
 import os
 from fastembed import TextEmbedding
+from qdrant_client import models
 
 
 load_dotenv()
@@ -27,5 +28,12 @@ def load_and_chunk_pdf(path: str):
     return chunks
 
 def embed_texts(texts: list[str]) -> list[list[float]]:
-    embeddings = list(embedding_model.embed(texts))
+    # embeddings = list(embedding_model.embed(texts))
+    embeddings = [
+        {
+        "dense": list(embedding_model.embed([text]))[0].tolist(),
+        "sparse": models.Document(text=text, model="Qdrant/bm25")
+        }
+        for text in texts
+    ]
     return embeddings
